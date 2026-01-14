@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALEX LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&family=Comic+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1f;
+            --text: #e0f0ff;
+            --accent: #99ccff;     /* soft pastel blue */
+            --accent2: #88ddff;    /* cyan soft */
+            --glow: rgba(153, 204, 255, 0.4);
+            --border: #99ccff33;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: linear-gradient(135deg, var(--bg), #1a2035);
+            color: var(--text);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+        h1 {
+            font-family: 'Comic Neue', cursive;
+            font-size: 3rem;
+            color: var(--accent);
+            text-shadow: 0 0 25px var(--glow);
+            margin-bottom: 1.8rem;
+            animation: float 7s ease-in-out infinite;
+        }
+        .input-container {
+            position: relative;
+            width: 90%;
+            max-width: 620px;
+            margin: 1.8rem 0;
+        }
+        input {
+            width: 100%;
+            padding: 1.3rem 1.6rem;
+            font-size: 1.15rem;
+            background: rgba(20, 30, 60, 0.75);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            outline: none;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.35);
+        }
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--glow);
+            transform: scale(1.02);
+        }
+        input::placeholder {
+            color: #aaccff88;
+            font-style: italic;
+        }
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.6rem;
+            color: var(--accent);
+            opacity: 0;
+            animation: sparkleAnim 1.3s forwards;
+        }
+        @keyframes sparkleAnim {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            50% { opacity: 1; transform: translateY(-50px) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0.7); }
+        }
+        button {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, var(--accent), var(--accent2));
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px var(--glow);
+            transition: all 0.3s;
+            margin-top: 1.2rem;
+        }
+        button:hover {
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 15px 35px var(--glow);
+        }
+        #player-container {
+            width: 90%;
+            max-width: 800px;
+            height: 450px;
+            margin-top: 2.5rem;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 50px rgba(0,0,0,0.7);
+            background: rgba(20,30,60,0.6);
+            border: 1px solid var(--border);
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>♪ ALEX LINK ♪</h1>
+
+    <div class="input-container">
+        <input type="text" id="linkInput" placeholder="Paste your link here... (YouTube or Spotify)">
+    </div>
+
+    <button onclick="loadPlayer()">Play</button>
+
+    <div id="player-container">
+        <div id="player"></div>
+    </div>
+
+    <script>
+        const input = document.getElementById('linkInput');
+        const playerDiv = document.getElementById('player');
+
+        // Sparkle effect when typing
+        input.addEventListener('input', (e) => {
+            if (Math.random() > 0.7) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.textContent = ['💙', '✨', '🌊', '♡', '☆'][Math.floor(Math.random()*5)];
+                sparkle.style.left = (e.target.offsetWidth * Math.random()) + 'px';
+                sparkle.style.top = '50%';
+                e.target.parentNode.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1500);
+            }
+        });
+
+        function loadPlayer() {
+            const link = input.value.trim();
+            playerDiv.innerHTML = '';
+
+            if (!link) {
+                alert('Please paste a valid link ♡');
+                return;
+            }
+
+            let embedUrl = '';
+            let params = '?autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&fs=1&iv_load_policy=3&disablekb=1';
+
+            // YouTube detection (improved for various link formats)
+            if (link.includes('youtube.com') || link.includes('youtu.be')) {
+                let videoId = '';
+                if (link.includes('v=')) {
+                    videoId = link.split('v=')[1].split('&')[0];
+                } else if (link.includes('youtu.be/')) {
+                    videoId = link.split('youtu.be/')[1].split('?')[0].split('&')[0];
+                }
+                if (videoId) {
+                    embedUrl = `https://www.youtube.com/embed/${videoId}${params}&loop=0`;
+                }
+            }
+            // Spotify detection
+            else if (link.includes('spotify.com')) {
+                const parts = link.split('/');
+                const type = parts[3];
+                const id = parts[4]?.split('?')[0];
+                if (type && id) {
+                    embedUrl = `https://open.spotify.com/embed/${type}/${id}`;
+                }
+            }
+
+            if (embedUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.src = embedUrl;
+                iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+                iframe.allowFullscreen = true;
+                playerDiv.appendChild(iframe);
+            } else {
+                alert('Link not recognized... try YouTube or Spotify ♡');
+            }
+        }
+    </script>
+
+</body>
+</html>
